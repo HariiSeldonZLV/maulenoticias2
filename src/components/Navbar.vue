@@ -1,99 +1,52 @@
 <script setup lang="ts">
+import { useRouter } from "vue-router";
 
-import { useRouter } from "vue-router"
+const router = useRouter();
 
-const router = useRouter()
-
-const irCategoria = (categoria:string) => {
-
+const irCategoria = (categoria: string) => {
   router.push({
     path: "/",
     query: { categoria }
-  })
-
-}
-
+  });
+};
 </script>
 
 <template>
+<nav class="navbar navbar-expand-lg navbar-dark bg-black border-bottom border-danger">
+  <div class="container">
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <!-- LOGO -->
+    <router-link class="navbar-brand" to="/">Noticias Maule</router-link>
 
-<div class="container">
+    <!-- TOGGLER -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
 
-<router-link class="navbar-brand" to="/">
-Noticias Maule
-</router-link>
+    <div class="collapse navbar-collapse" id="navbarNav">
 
-<button
-class="navbar-toggler"
-type="button"
-data-bs-toggle="collapse"
-data-bs-target="#navbarNav"
->
-<span class="navbar-toggler-icon"></span>
-</button>
+      <!-- CATEGORÍAS -->
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item"><a class="nav-link" @click="irCategoria('todas')">Todas</a></li>
+        <li class="nav-item"><a class="nav-link" @click="irCategoria('politica')">Política</a></li>
+        <li class="nav-item"><a class="nav-link" @click="irCategoria('deportes')">Deportes</a></li>
+        <li class="nav-item"><a class="nav-link" @click="irCategoria('tecnologia')">Tecnología</a></li>
+        <li class="nav-item"><a class="nav-link" @click="irCategoria('economia')">Economía</a></li>
 
-<div class="collapse navbar-collapse" id="navbarNav">
+        <!-- NUEVA OPCIÓN: BURSÁTIL -->
+        <li class="nav-item">
+          <router-link class="nav-link" to="/bursatil">Bursátil</router-link>
+        </li>
+      </ul>
 
-<!-- CATEGORÍAS -->
+      <!-- BOTONES DERECHA -->
+      <div class="d-flex">
+        <router-link to="/create-news" class="btn btn-warning me-2">Publicar</router-link>
+        <router-link to="/login" class="btn btn-outline-light me-2">Login</router-link>
+        <router-link to="/register" class="btn btn-primary">Registro</router-link>
+      </div>
 
-<ul class="navbar-nav me-auto">
-
-<li class="nav-item">
-<a class="nav-link" @click="irCategoria('todas')">
-Todas
-</a>
-</li>
-
-<li class="nav-item">
-<a class="nav-link" @click="irCategoria('politica')">
-Política
-</a>
-</li>
-
-<li class="nav-item">
-<a class="nav-link" @click="irCategoria('deportes')">
-Deportes
-</a>
-</li>
-
-<li class="nav-item">
-<a class="nav-link" @click="irCategoria('tecnologia')">
-Tecnología
-</a>
-</li>
-
-<li class="nav-item">
-<a class="nav-link" @click="irCategoria('economia')">
-Economía
-</a>
-</li>
-
-</ul>
-
-<!-- BOTONES DERECHA -->
-
-<div class="d-flex">
-
-<router-link to="/create-news" class="btn btn-warning me-2">
-Publicar
-</router-link>
-
-<router-link to="/login" class="btn btn-outline-light me-2">
-Login
-</router-link>
-
-<router-link to="/register" class="btn btn-primary">
-Registro
-</router-link>
-
-</div>
-
-</div>
-
-</div>
-
+    </div>
+  </div>
 </nav>
-
 </template>

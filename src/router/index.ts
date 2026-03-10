@@ -1,22 +1,24 @@
-import { createRouter, createWebHashHistory } from "vue-router"
+import { createRouter, createWebHashHistory } from "vue-router";
 
-import Home from "../views/Home.vue"
-import Login from "../views/Login.vue"
-import Register from "../views/Register.vue"
-import NewsDetail from "../views/NewsDetail.vue"
-import CreateNews from "../views/CreateNews.vue"
+import Home from "../views/Home.vue";
+import Login from "../views/Login.vue";
+import Register from "../views/Register.vue";
+import NewsDetail from "../views/NewsDetail.vue";
+import CreateNews from "../views/CreateNews.vue";
+import Bursatil from "../views/Bursatil.vue";
 
 const routes = [
   { path: "/", name: "home", component: Home },
   { path: "/login", name: "login", component: Login },
   { path: "/register", name: "register", component: Register },
   { path: "/news/:id", name: "news-detail", component: NewsDetail },
-  { path: "/create-news", name: "create-news", component: CreateNews }
-]
+  { path: "/create-news", name: "create-news", component: CreateNews },
+  { path: "/bursatil", name: "bursatil", component: Bursatil } // <-- aquí dentro
+];
 
 const router = createRouter({
-  history: createWebHashHistory(), 
+  history: createWebHashHistory(),
   routes
-})
+});
 
-export default router
+export default router;
