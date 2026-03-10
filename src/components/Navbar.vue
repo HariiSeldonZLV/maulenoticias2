@@ -35,7 +35,10 @@ const irCategoria = (categoria: string) => {
 
         <!-- NUEVA OPCIÓN: BURSÁTIL -->
         <li class="nav-item">
-          <router-link class="nav-link" to="/bursatil">Bursátil</router-link>
+          <!-- Cambiado a link externo -->
+          <a class="nav-link" href="https://HariiSeldonZLV.github.io/bursatil/" target="_blank" rel="noopener noreferrer">
+            Bursátil
+          </a>
         </li>
       </ul>
 
