@@ -1,15 +1,15 @@
-<template>
-
-<section class="bg-primary text-white text-center py-5">
+<section class="hero">
 
 <div class="container">
 
-<h1>Portal Noticias Maule</h1>
+<h1 class="display-4">
+Portal Noticias Maule
+</h1>
 
-<p>Las últimas noticias de la región</p>
+<p class="lead">
+Las noticias más recientes de la región
+</p>
 
 </div>
 
 </section>
-
-</template>
