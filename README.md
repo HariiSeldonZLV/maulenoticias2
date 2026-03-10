@@ -15,4 +15,4 @@ Portal de noticias desarrollado con Vue 3, Bootstrap y Firebase.
 
 - Vue 3
 - Bootstrap
-- Firebase Firestore
+
