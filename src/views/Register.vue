@@ -1,88 +1,72 @@
-<script setup lang="ts">
-import { ref } from "vue"
-import { createUserWithEmailAndPassword } from "firebase/auth"
-import { auth, db } from "../firebase"
-import { doc, setDoc } from "firebase/firestore"
-import { useRouter } from "vue-router"
-
-const email = ref("")
-const password = ref("")
-const errorMsg = ref("")
-const router = useRouter()
-
-const register = async () => {
-  try {
-    // Usamos .trim() para limpiar espacios accidentales
-    const userCredential = await createUserWithEmailAndPassword(
-      auth,
-      email.value.trim(),
-      password.value
-    )
-
-    const user = userCredential.user
-
-    // Guardar perfil adicional en Firestore
-    await setDoc(doc(db, "users", user.uid), {
-      uid: user.uid,
-      email: user.email,
-      role: 'user', // Puedes añadir roles aquí
-      createdAt: new Date()
-    })
-
-    alert("¡Cuenta creada con éxito!")
-    router.push("/login")
-
-  } catch (error: any) {
-    console.error(error.code)
-    if (error.code === 'auth/email-already-in-use') {
-      errorMsg.value = "Este correo ya está registrado."
-    } else if (error.code === 'auth/weak-password') {
-      errorMsg.value = "La contraseña debe tener al menos 6 caracteres."
-    } else {
-      errorMsg.value = "Error al registrar: " + error.message
-    }
-  }
-}
-</script>
-
 <template>
   <div class="container mt-5">
     <div class="row justify-content-center">
       <div class="col-md-5">
         <div class="card p-4 shadow bg-dark text-white border-primary">
-          <h2 class="mb-4">Crear Cuenta</h2>
+          <h2 class="mb-4">Registro</h2>
           
-          <div v-if="errorMsg" class="alert alert-danger">{{ errorMsg }}</div>
-
-          <div class="mb-3">
-            <label class="form-label">Correo Electrónico</label>
-            <input 
-              v-model="email" 
-              type="email" 
-              class="form-control" 
-              placeholder="nombre@ejemplo.com"
-            />
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label">Contraseña</label>
-            <input 
-              v-model="password" 
-              type="password" 
-              class="form-control" 
-              placeholder="Mínimo 6 caracteres"
-            />
-          </div>
-
-          <button class="btn btn-primary w-100 mt-3" @click="register">
-            Registrarse
+          <button class="btn btn-outline-light w-100 mb-4 d-flex align-items-center justify-content-center" @click="registroGoogle">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" width="20" class="me-2">
+            Registrarse con Google
           </button>
 
-          <p class="mt-3 text-center">
-            ¿Ya tienes cuenta? <router-link to="/login" class="text-warning">Inicia sesión</router-link>
-          </p>
+          <div class="text-center mb-4"><hr> o usa tu email <hr></div>
+
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input v-model="email" type="email" class="form-control" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Contraseña</label>
+            <input v-model="password" type="password" class="form-control" />
+          </div>
+
+          <button class="btn btn-primary w-100" @click="register">Crear Cuenta</button>
         </div>
       </div>
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import { ref } from "vue"
+import { auth, db } from "../firebase"
+import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth"
+import { doc, setDoc } from "firebase/firestore"
+import { useRouter } from "vue-router"
+
+const email = ref("")
+const password = ref("")
+const router = useRouter()
+
+// Registro con Google
+const registroGoogle = async () => {
+  try {
+    const provider = new GoogleAuthProvider()
+    const result = await signInWithPopup(auth, provider)
+    await setDoc(doc(db, "users", result.user.uid), {
+      uid: result.user.uid,
+      email: result.user.email,
+      createdAt: new Date()
+    })
+    router.push("/")
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+// Registro con Email (Tu función actual)
+const register = async () => {
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email.value.trim(), password.value)
+    await setDoc(doc(db, "users", userCredential.user.uid), {
+      uid: userCredential.user.uid,
+      email: userCredential.user.email,
+      createdAt: new Date()
+    })
+    router.push("/login")
+  } catch (error) {
+    console.error(error)
+  }
+}
+</script>
