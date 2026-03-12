@@ -1,108 +1,52 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
-import { useRouter } from "vue-router";
+import { ref, onMounted } from "vue"
+import { auth } from "../firebase"
+import { onAuthStateChanged, signOut } from "firebase/auth"
+import { useRouter } from "vue-router"
 
-const router = useRouter();
-const clima = ref({ temp: 0, icon: "", ciudad: "Cargando..." });
+const router = useRouter()
+const user = ref<any>(null)
 
-const irCategoria = (categoria: string) => {
-  router.push({
-    path: "/",
-    query: { categoria }
-  });
-};
-
-// Función para obtener el clima basado en coordenadas
-const obtenerClima = async (lat: number, lon: number, nombreCiudad: string = "Local") => {
-  try {
-    const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
-    const data = await res.json();
-    clima.value.temp = Math.round(data.current_weather.temperature);
-    clima.value.ciudad = nombreCiudad;
-    
-    const code = data.current_weather.weathercode;
-    clima.value.icon = code === 0 ? "☀️" : code < 4 ? "🌤️" : "☁️";
-  } catch (error) {
-    console.error("Error al obtener clima", error);
-  }
-};
-
-// Lógica para pedir ubicación
-const inicializarClima = () => {
-  if (typeof navigator !== 'undefined' && navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        obtenerClima(pos.coords.latitude, pos.coords.longitude, "Tu ubicación");
-      },
-      () => {
-        obtenerClima(-35.4264, -71.6554, "Talca");
-      }
-    );
-  } else {
-    obtenerClima(-35.4264, -71.6554, "Talca");
-  }
-};
-
+// Escuchar si el usuario está logueado o no
 onMounted(() => {
-  inicializarClima();
-});
+  onAuthStateChanged(auth, (firebaseUser) => {
+    user.value = firebaseUser
+  })
+})
+
+const cerrarSesion = async () => {
+  try {
+    await signOut(auth)
+    router.push("/login")
+  } catch (error) {
+    console.error("Error al cerrar sesión", error)
+  }
+}
 </script>
 
 <template>
-<nav class="navbar navbar-expand-lg navbar-dark bg-black border-bottom border-danger">
-  <div class="container">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow">
+    <div class="container">
+      <router-link class="navbar-brand fw-bold text-warning" to="/">
+        NOTICIAS MAULE
+      </router-link>
+      
+      <div class="navbar-nav ms-auto d-flex align-items-center">
+        <router-link class="nav-link" to="/">Inicio</router-link>
 
-    <router-link class="navbar-brand" to="/">Noticias Maule</router-link>
+        <template v-if="!user">
+          <router-link class="nav-link" to="/login">Entrar</router-link>
+          <router-link class="nav-link" to="/register">Registrarse</router-link>
+        </template>
 
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <div class="collapse navbar-collapse" id="navbarNav">
-
-      <ul class="navbar-nav me-auto">
-        <li class="nav-item"><a class="nav-link" style="cursor: pointer" @click="irCategoria('todas')">Todas</a></li>
-        <li class="nav-item"><a class="nav-link" style="cursor: pointer" @click="irCategoria('politica')">Política</a></li>
-        <li class="nav-item"><a class="nav-link" style="cursor: pointer" @click="irCategoria('deportes')">Deportes</a></li>
-        <li class="nav-item"><a class="nav-link" style="cursor: pointer" @click="irCategoria('tecnologia')">Tecnología</a></li>
-        <li class="nav-item"><a class="nav-link" style="cursor: pointer" @click="irCategoria('economia')">Economía</a></li>
-
-        <li class="nav-item">
-          <a class="nav-link" href="https://HariiSeldonZLV.github.io/bursatil/" target="_blank" rel="noopener noreferrer">
-            Bursátil
-          </a>
-        </li>
-      </ul>
-
-      <div class="d-flex align-items-center">
-        <div v-if="clima.temp" class="text-white me-3 d-none d-md-block clima-widget">
-          <span class="text-secondary small">{{ clima.ciudad }}:</span> 
-          <strong>{{ clima.icon }} {{ clima.temp }}°C</strong>
-        </div>
-
-        <router-link to="/create-news" class="btn btn-warning me-2">Publicar</router-link>
-        <router-link to="/login" class="btn btn-outline-light me-2">Login</router-link>
-        <router-link to="/register" class="btn btn-primary">Registro</router-link>
+        <template v-else>
+          <router-link class="nav-link text-info" to="/create-news">Publicar</router-link>
+          <span class="nav-link disabled text-light small">| {{ user.email }} |</span>
+          <button class="btn btn-outline-danger btn-sm ms-2" @click="cerrarSesion">
+            Salir
+          </button>
+        </template>
       </div>
-
     </div>
-  </div>
-</nav>
+  </nav>
 </template>
-
-<style scoped>
-/* toque sutil para el clima */
-.clima-widget {
-  background: rgba(255, 255, 255, 0.1);
-  padding: 5px 12px;
-  border-radius: 20px;
-  border: 1px solid rgba(220, 53, 69, 0.3); /* borde rojo tenue */
-  transition: all 0.3s ease;
-  cursor: default;
-}
-
-.clima-widget:hover {
-  background: rgba(220, 53, 69, 0.2);
-  transform: scale(1.05);
-}
-</style>
