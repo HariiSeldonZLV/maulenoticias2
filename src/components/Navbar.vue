@@ -29,19 +29,20 @@ const obtenerClima = async (lat: number, lon: number, nombreCiudad: string = "Lo
 
 // Lógica para pedir ubicación
 const inicializarClima = () => {
-  if ("geolocation" in navigator) {
+  // Verificamos si estamos en el navegador y si existe la geolocalización
+  if (typeof window !== 'undefined' && navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        // El usuario aceptó: usamos sus coordenadas reales
-        obtenerClima(position.coords.latitude, position.coords.longitude, "Tu ubicación");
+        const { latitude, longitude } = position.coords;
+        obtenerClima(latitude, longitude, "Tu ubicación");
       },
-      () => {
-        // El usuario rechazó o hubo error: usamos Talca por defecto
+      (error) => {
+        console.warn("Geolocalización rechazada o fallida:", error);
         obtenerClima(-35.4264, -71.6554, "Talca");
-      }
+      },
+      { timeout: 10000 } // Esperar máximo 10 segundos
     );
   } else {
-    // El navegador no soporta geolocalización
     obtenerClima(-35.4264, -71.6554, "Talca");
   }
 };
