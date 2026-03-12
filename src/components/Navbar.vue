@@ -12,7 +12,7 @@ onMounted(() => {
   onAuthStateChanged(auth, (firebaseUser) => {
     user.value = firebaseUser
   })
-  getWeather()
+  getPreciseWeather() // Llamamos a la función de precisión
 })
 
 const cerrarSesion = async () => {
@@ -22,16 +22,24 @@ const cerrarSesion = async () => {
   } catch (error) { console.error(error) }
 }
 
-const getWeather = async () => {
-  try {
-    // Usamos wttr.in que es gratis y no necesita API Key
-    // format=3 devuelve algo como: "Santiago: ☀️ +25°C"
-    const response = await fetch('https://wttr.in/?format=3')
-    if (response.ok) {
-      weatherInfo.value = await response.text()
-    }
-  } catch (error) {
-    console.warn("No se pudo cargar el clima")
+const getPreciseWeather = () => {
+  if (navigator.geolocation) {
+    // Esto disparará la solicitud de permiso en el navegador
+    navigator.geolocation.getCurrentPosition(async (position) => {
+      const { latitude, longitude } = position.coords
+      try {
+        // Le pasamos las coordenadas exactas a wttr.in
+        const response = await fetch(`https://wttr.in/${latitude},${longitude}?format=3`)
+        if (response.ok) {
+          weatherInfo.value = await response.text()
+        }
+      } catch (error) {
+        console.warn("Error al obtener datos del clima")
+      }
+    }, (error) => {
+      console.warn("El usuario denegó la ubicación o hubo un error:", error.message)
+      // Si falla o deniega, podemos dejarlo vacío o usar la IP como respaldo
+    })
   }
 }
 </script>
@@ -44,7 +52,7 @@ const getWeather = async () => {
       </router-link>
 
       <div v-if="weatherInfo" class="text-white small d-none d-md-flex align-items-center me-4">
-        <span class="badge bg-secondary">{{ weatherInfo }}</span>
+        <span class="badge border border-warning text-warning">{{ weatherInfo }}</span>
       </div>
 
       <div class="navbar-nav ms-auto d-flex align-items-center">
@@ -68,4 +76,9 @@ const getWeather = async () => {
 
 <style scoped>
 .navbar { border-bottom: 2px solid #ffc107; }
+/* Estilo un poco más "Maule" para el clima */
+.badge {
+  background: transparent;
+  font-size: 0.85rem;
+}
 </style>
