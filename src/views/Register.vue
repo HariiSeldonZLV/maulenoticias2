@@ -6,9 +6,9 @@
           <h2 class="mb-4">Registro</h2>
           
           <button class="btn btn-outline-light w-100 mb-4 d-flex align-items-center justify-content-center" @click="registroGoogle">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" width="20" class="me-2">
-            Registrarse con Google
-          </button>
+  <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg" width="20" class="me-2" alt="Google Logo">
+  Registrarse con Google
+</button>
 
           <div class="text-center mb-4"><hr> o usa tu email <hr></div>
 
@@ -70,3 +70,27 @@ const register = async () => {
   }
 }
 </script>
+
+<style scoped>
+/* Estilo para el botón de Google */
+.btn-outline-light {
+  border-color: rgba(255, 255, 255, 0.2);
+  font-weight: 500;
+  background-color: #fff;
+  color: #000; /* Texto negro para que resalte el logo */
+}
+
+.btn-outline-light:hover {
+  background-color: #f1f1f1;
+  color: #000;
+  border-color: #fff;
+}
+
+/* El divisor "o usa tu email" */
+hr {
+  display: inline-block;
+  width: 30%;
+  vertical-align: middle;
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+}
+</style>
