@@ -75,7 +75,7 @@ onMounted(() => {
       </ul>
 
       <div class="d-flex align-items-center">
-        <div v-if="clima.temp" class="text-white me-3 d-none d-md-block">
+        <div v-if="clima.temp" class="text-white me-3 d-none d-md-block clima-widget">
           <span class="text-secondary small">{{ clima.ciudad }}:</span> 
           <strong>{{ clima.icon }} {{ clima.temp }}°C</strong>
         </div>
@@ -89,3 +89,20 @@ onMounted(() => {
   </div>
 </nav>
 </template>
+
+<style scoped>
+/* toque sutil para el clima */
+.clima-widget {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(220, 53, 69, 0.3); /* borde rojo tenue */
+  transition: all 0.3s ease;
+  cursor: default;
+}
+
+.clima-widget:hover {
+  background: rgba(220, 53, 69, 0.2);
+  transform: scale(1.05);
+}
+</style>
