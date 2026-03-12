@@ -6,46 +6,32 @@ import { useRouter } from "vue-router"
 
 const router = useRouter()
 const user = ref<any>(null)
+const weatherInfo = ref("")
 
-// Variables para el clima
-const weather = ref<any>(null)
-const city = ref("Cargando clima...")
-
-// Lógica de Autenticación
 onMounted(() => {
   onAuthStateChanged(auth, (firebaseUser) => {
     user.value = firebaseUser
   })
-  getWeather() // Llamamos al clima al montar
+  getWeather()
 })
 
 const cerrarSesion = async () => {
   try {
     await signOut(auth)
     router.push("/login")
-  } catch (error) {
-    console.error("Error al cerrar sesión", error)
-  }
+  } catch (error) { console.error(error) }
 }
 
-// Lógica del Clima
-const getWeather = () => {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(async (position) => {
-      const { latitude, longitude } = position.coords
-      try {
-        const API_KEY = "tu_api_key_aqui" // Reemplaza con tu clave de OpenWeather
-        const response = await fetch(
-          `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric&lang=es`
-        )
-        const data = await response.json()
-        weather.value = data
-        city.value = data.name
-      } catch (error) {
-        console.error("Error obteniendo el clima", error)
-        city.value = "Clima no disponible"
-      }
-    })
+const getWeather = async () => {
+  try {
+    // Usamos wttr.in que es gratis y no necesita API Key
+    // format=3 devuelve algo como: "Santiago: ☀️ +25°C"
+    const response = await fetch('https://wttr.in/?format=3')
+    if (response.ok) {
+      weatherInfo.value = await response.text()
+    }
+  } catch (error) {
+    console.warn("No se pudo cargar el clima")
   }
 }
 </script>
@@ -57,9 +43,8 @@ const getWeather = () => {
         NOTICIAS MAULE
       </router-link>
 
-      <div v-if="weather" class="text-white small d-none d-md-flex align-items-center me-4">
-        <img :src="`https://openweathermap.org/img/wn/${weather.weather[0].icon}.png`" width="30" />
-        <span>{{ city }}: {{ Math.round(weather.main.temp) }}°C</span>
+      <div v-if="weatherInfo" class="text-white small d-none d-md-flex align-items-center me-4">
+        <span class="badge bg-secondary">{{ weatherInfo }}</span>
       </div>
 
       <div class="navbar-nav ms-auto d-flex align-items-center">
@@ -72,7 +57,6 @@ const getWeather = () => {
 
         <template v-else>
           <router-link class="nav-link text-info fw-bold" to="/create-news">Publicar</router-link>
-          <span class="nav-link disabled text-light small d-none d-sm-inline">| {{ user.email }} |</span>
           <button class="btn btn-outline-danger btn-sm ms-2" @click="cerrarSesion">
             Salir
           </button>
@@ -83,10 +67,5 @@ const getWeather = () => {
 </template>
 
 <style scoped>
-.navbar {
-  border-bottom: 2px solid #ffc107;
-}
-.nav-link:hover {
-  color: #ffc107 !important;
-}
+.navbar { border-bottom: 2px solid #ffc107; }
 </style>
