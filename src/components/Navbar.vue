@@ -12,7 +12,7 @@ onMounted(() => {
   onAuthStateChanged(auth, (firebaseUser) => {
     user.value = firebaseUser
   })
-  getPreciseWeather() // Llamamos a la función de precisión
+  getPreciseWeather()
 })
 
 const cerrarSesion = async () => {
@@ -24,21 +24,29 @@ const cerrarSesion = async () => {
 
 const getPreciseWeather = () => {
   if (navigator.geolocation) {
-    // Esto disparará la solicitud de permiso en el navegador
     navigator.geolocation.getCurrentPosition(async (position) => {
       const { latitude, longitude } = position.coords
       try {
-        // Le pasamos las coordenadas exactas a wttr.in
-        const response = await fetch(`https://wttr.in/${latitude},${longitude}?format=3`)
-        if (response.ok) {
-          weatherInfo.value = await response.text()
+        // PASO 1: Traducir coordenadas a nombre de ciudad usando Nominatim (Gratis)
+        const geoResponse = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`)
+        const geoData = await geoResponse.json()
+        
+        // Sacamos la ciudad, pueblo o villa
+        const locationName = geoData.address.city || geoData.address.town || geoData.address.village || "Maule"
+
+        // PASO 2: Pedir el clima para ese nombre específico
+        const weatherResponse = await fetch(`https://wttr.in/${locationName}?format=%l:+%c+%t`)
+        if (weatherResponse.ok) {
+          weatherInfo.value = await weatherResponse.text()
         }
       } catch (error) {
-        console.warn("Error al obtener datos del clima")
+        console.warn("Error en el clima:", error)
       }
     }, (error) => {
-      console.warn("El usuario denegó la ubicación o hubo un error:", error.message)
-      // Si falla o deniega, podemos dejarlo vacío o usar la IP como respaldo
+      // Si el usuario no da permiso, usamos la IP como respaldo
+      fetch('https://wttr.in/?format=3')
+        .then(res => res.text())
+        .then(data => weatherInfo.value = data)
     })
   }
 }
@@ -52,7 +60,9 @@ const getPreciseWeather = () => {
       </router-link>
 
       <div v-if="weatherInfo" class="text-white small d-none d-md-flex align-items-center me-4">
-        <span class="badge border border-warning text-warning">{{ weatherInfo }}</span>
+        <span class="badge border border-warning text-warning fw-normal px-3 py-2">
+          {{ weatherInfo }}
+        </span>
       </div>
 
       <div class="navbar-nav ms-auto d-flex align-items-center">
@@ -76,9 +86,9 @@ const getPreciseWeather = () => {
 
 <style scoped>
 .navbar { border-bottom: 2px solid #ffc107; }
-/* Estilo un poco más "Maule" para el clima */
 .badge {
-  background: transparent;
-  font-size: 0.85rem;
+  background: rgba(255, 193, 7, 0.1);
+  letter-spacing: 0.5px;
+  border-radius: 20px;
 }
 </style>
